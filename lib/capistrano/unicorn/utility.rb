@@ -40,7 +40,7 @@ module CapistranoUnicorn
     # Check if a remote process exists using its pid file
     #
     def remote_process_exists?(pid_file)
-      test("[ -e #{pid_file} ]") && execute(*try_unicorn_user, :kill, '-0', "`cat #{pid_file}`", '> /dev/null 2>&1', raise_on_non_zero_exit: false)
+      test("[ -e #{pid_file} ]") && unicorn_execute(:kill, '-0', "`cat #{pid_file}`", '> /dev/null 2>&1', raise_on_non_zero_exit: false)
     end
 
     # Stale Unicorn process pid file
@@ -76,17 +76,21 @@ module CapistranoUnicorn
     # Send a signal to a unicorn master processes
     #
     def unicorn_send_signal(signal, pid=get_unicorn_pid)
-      execute *try_unicorn_user, 'kill', '-s', signal, pid
+      unicorn_execute 'kill', '-s', signal, pid
     end
 
+    # Run a unicorn command with or without sudo
     # Run a command as the :unicorn_user user if :unicorn_user is a string.
     # Otherwise run as default (:user) user.
     #
-    def try_unicorn_user
+    def unicorn_execute(*args)
+      options = args.extract_options!
+
+      command = "bash -l -c \"#{args.join(' ')}\""
       if unicorn_user = fetch(:unicorn_user)
-        [:sudo, '-u', unicorn_user]
+        execute :sudo, '-u', unicorn_user, command, options
       else
-        nil
+        execute command, options
       end
     end
 
@@ -117,7 +121,7 @@ module CapistranoUnicorn
           puts 'Unicorn is already running!'
           return
         else
-          execute *try_unicorn_user, :rm, fetch(:unicorn_pid)
+          unicorn_execute :rm, fetch(:unicorn_pid)
         end
       end
 
@@ -125,7 +129,7 @@ module CapistranoUnicorn
 
       within fetch(:app_path) do
         with rails_env: fetch(:rails_env), bundle_gemfile: fetch(:bundle_gemfile) do
-          execute *try_unicorn_user, fetch(:unicorn_bin), '-c', unicorn_config_file_path, '-E', fetch(:unicorn_rack_env), '-D', fetch(:unicorn_options)
+          unicorn_execute fetch(:unicorn_bin), '-c', unicorn_config_file_path, '-E', fetch(:unicorn_rack_env), '-D', fetch(:unicorn_options)
         end
       end
     end
