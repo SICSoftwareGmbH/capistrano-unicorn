@@ -2,11 +2,11 @@
 require File.expand_path("../lib/capistrano/unicorn/version", __FILE__)
 
 Gem::Specification.new do |spec|
-  spec.name        = "capistrano-unicorn"
+  spec.name        = "capistrano-unicorn-sic"
   spec.version     = CapistranoUnicorn::VERSION.dup
-  spec.author      = "Sebastian Gassner, Dan Sosedoff"
+  spec.author      = "Sebastian Gassner, Dan Sosedoff, Florian Schwab"
   spec.email       = "sebastian.gassner@gmail.com"
-  spec.homepage    = "https://github.com/sepastian/capistrano-unicorn"
+  spec.homepage    = "https://github.com/SICSoftwareGmbH/capistrano-unicorn"
   spec.summary     = %q{Unicorn integration for Capistrano 3.x}
   spec.description = %q{Capistrano 3.x plugin that integrates Unicorn server tasks.}
   spec.license     = "MIT"
