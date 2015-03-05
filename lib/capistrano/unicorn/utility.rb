@@ -86,11 +86,11 @@ module CapistranoUnicorn
     def unicorn_execute(*args)
       options = args.extract_options!
 
-      command = "bash -l -c \"#{args.join(' ')}\""
+      command = [:bash, '-l', '-c', "\"#{args.join(' ')}\""]
       if unicorn_user = fetch(:unicorn_user)
         execute :sudo, '-u', unicorn_user, command, options
       else
-        execute command, options
+        execute *command, options
       end
     end
 
@@ -127,9 +127,9 @@ module CapistranoUnicorn
 
       puts 'Starting unicorn...'
 
-      within fetch(:app_path) do
+      within release_path do
         with rails_env: fetch(:rails_env) do
-          unicorn_execute fetch(:unicorn_bin), '-c', unicorn_config_file_path, '-E', fetch(:unicorn_rack_env), '-D', fetch(:unicorn_options)
+          unicorn_execute *unicorn_bin, '-c', unicorn_config_file_path, '-E', fetch(:unicorn_rack_env), '-D', fetch(:unicorn_options)
         end
       end
     end
@@ -144,6 +144,10 @@ module CapistranoUnicorn
 
     def unicorn_roles
       fetch(:unicorn_roles, :app)
+    end
+
+    def unicorn_bin
+      fetch(:unicorn_bin).split(/\s+/)
     end
   end
 end

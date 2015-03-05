@@ -6,6 +6,8 @@ include CapistranoUnicorn::Utility
 # See https://github.com/capistrano/capistrano/pull/605
 namespace :load do
   task :defaults do
+    set :rbenv_map_bins, fetch(:rbenv_map_bins).to_a.concat(%w(unicorn))
+    set :rvm_map_bins, fetch(:rvm_map_bins).to_a.concat(%w(unicorn))
 
     # Environments
     set :unicorn_env     , Proc.new{ fetch(:rails_env, 'production') }
